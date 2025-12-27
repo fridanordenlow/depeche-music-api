@@ -1,0 +1,28 @@
+import 'dotenv/config';
+import express from 'express';
+// Note: The .js extension is required here because I am using ESM (ECMAScript Modules)
+// with 'NodeNext' resolution. TypeScript requires the extension that will exist
+// in the compiled output (dist folder), even though the source file is .ts.
+import { spotifyRouter } from './routes/spotifyRouter.js';
+
+const app = express();
+
+const PORT = 3000;
+//const PORT = process.env.PORT || 3000;
+
+// Middlewares
+// Add cors middleware later if needed
+// Add cookie-parser middleware later if needed
+// If I plan to recieve JSON payloads in requests later (POST, PUT etc)
+app.use(express.json());
+
+// Routes
+app.use('/api/spotify', spotifyRouter);
+// Maybe later refactor to have different routers for different services
+// Ex api/users, api/spotify/album etc
+
+// Add connection to MongoDB here later
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
