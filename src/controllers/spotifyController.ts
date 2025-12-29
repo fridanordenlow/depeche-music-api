@@ -115,3 +115,29 @@ export const fetchNewReleases = async (req: AuthenticatedRequest, res: Response)
     });
   }
 };
+
+export const search = async (req: AuthenticatedRequest, res: Response) => {
+  const { q, limit, offset } = req.query;
+  const token = req.spotifyToken as string;
+
+  if (!q || typeof q !== 'string') {
+    return res.status(400).json({
+      error: 'Client Error',
+      details: 'Query parameter "q" is required and must be a string',
+    });
+  }
+
+  const limitNumber = limit ? parseInt(limit as string) : undefined;
+  const offsetNumber = offset ? parseInt(offset as string) : undefined;
+
+  try {
+    const response = await SpotifyService.getSearchResults(token, q, limitNumber, offsetNumber);
+    return res.json(response);
+  } catch (error: any) {
+    const statusCode = error.status || 500;
+    return res.status(statusCode).json({
+      error: statusCode >= 500 ? 'Internal Server Error' : 'Spotify API Error',
+      details: error.message,
+    });
+  }
+};
