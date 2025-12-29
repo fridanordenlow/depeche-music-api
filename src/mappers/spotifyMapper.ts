@@ -7,7 +7,7 @@ import {
   PaginatedResponse,
   Track,
 } from '../types/spotify.types.js';
-import { RawAlbum, RawArtist, RawImage, RawPaginatedResponse, RawTrack } from '../types/spotify.raw.js';
+import { RawAlbum, RawArtist, RawImage, RawTrack } from '../types/spotify.raw.js';
 import { getPrimaryImageUrl } from '../utils/spotifyApiUtils.js';
 
 /* Mapper functions to convert raw Spotify API data to clean application-specific data structures */
