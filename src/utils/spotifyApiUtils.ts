@@ -16,15 +16,23 @@ export const fetchSpotifyData = async <T>(token: string, endpointPath: string): 
     });
 
     if (!response.ok) {
-      throw new Error(`Spotify API Error ${response.status}: ${await response.text()}`);
-    }
+      const errorText = await response.text();
+      const statusCode = response.status;
 
-    const data = await response.json();
-    // console.log('Fetched Spotify data:', data);
-    return data as T;
+      const error = new Error(`Spotify API Error ${statusCode}`) as any;
+      error.status = statusCode;
+      error.details = errorText; // Raw error details from Spotify API response for logging purposes
+
+      console.error(`Spotify API Error ${statusCode}: ${errorText}`);
+      throw error;
+    }
+    return (await response.json()) as T;
   } catch (error: any) {
-    console.error('Error fetching Spotify data:', error.message);
-    throw new Error('Could not complete request to Spotify API');
+    if (error.status) throw error;
+    console.error('Network or System Error:', error.message);
+    const systemError = new Error('Could not complete request to Spotify API') as any;
+    systemError.status = 500;
+    throw systemError;
   }
 };
 
