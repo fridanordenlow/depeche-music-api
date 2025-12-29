@@ -6,7 +6,7 @@ import {
   RawAlbumsResponse,
   RawArtist,
   RawNewReleases,
-  RawPaginated,
+  RawPaginatedResponse,
   RawTrack,
 } from '../types/spotify.raw.js';
 import { NewReleasesResponse } from '../types/spotify.types.js';
@@ -50,6 +50,6 @@ export const getNewReleases = async (token: string, limit?: number, offset?: num
   // The listing of albums is inside the 'albums' property
   const rawAlbumsContainer = rawResponse.albums || { items: [] };
 
-  const data = mapPaginatedAlbums(rawAlbumsContainer as RawPaginated<RawAlbum>);
+  const data = mapPaginatedAlbums(rawAlbumsContainer as RawPaginatedResponse<RawAlbum>);
   return data;
 };

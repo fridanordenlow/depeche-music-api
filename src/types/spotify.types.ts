@@ -18,12 +18,13 @@ export interface ArtistReference {
   name: string;
 }
 
+// Maybe add followers later?
 export interface Artist {
   id: string;
   name: string;
   genres: string[]; // Can be empty array
   images: SpotifyImage[];
-  popularity: number;
+  popularity?: number;
 }
 
 export interface Track {
@@ -52,10 +53,11 @@ export interface Album {
   images: SpotifyImage[];
   releaseDate: string;
   totalTracks: number;
-  tracks: Track[];
-  genres: string[];
-  label: string;
-  popularity: number;
+  // Optional properties that may not be present in all responses
+  tracks?: Track[];
+  genres?: string[];
+  label?: string;
+  popularity?: number;
 }
 
 export interface PaginatedResponse<T> {
@@ -69,12 +71,3 @@ export interface PaginatedResponse<T> {
 
 export type ArtistAlbumsResponse = PaginatedResponse<Album>;
 export type NewReleasesResponse = PaginatedResponse<Album>;
-
-// export interface NewReleases {
-//   items: Album[];
-//   pagination: {
-//     limit: number;
-//     offset: number;
-//     total: number;
-//   };
-// }

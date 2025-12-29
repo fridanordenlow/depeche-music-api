@@ -12,7 +12,7 @@ export interface RawArtist {
   id: string;
   images: RawImage[];
   name: string;
-  popularity: number;
+  popularity?: number;
   type: 'artist';
   [key: string]: any; // For undefined or future unknown properties
 }
@@ -27,20 +27,29 @@ export interface RawTrack {
   track_number: number;
   [key: string]: any;
 }
+export interface RawAlbum {
+  album_type: 'album' | 'single' | 'compilation';
+  total_tracks: number;
+  id: string;
+  images: RawImage[];
+  name: string;
+  release_date: string;
+  artists: RawArtist[];
 
-// export interface RawAlbumsResponse {
-//   href: string;
-//   limit: number;
-//   next: string | null;
-//   offset: number;
-//   previous: string | null;
-//   total: number;
-//   items: RawAlbum[];
-//   [key: string]: any;
-// }
+  // Because in some Spotify endpoints, the tracks are not included in the response/album object
+  tracks?: {
+    total: number;
+    items: RawTrack[];
+    [key: string]: any;
+  };
 
-// eller? export interface RawAlbumsResponse
-export interface RawPaginated<T> {
+  // Because in some endpoints, these properties might be missing values
+  genres?: string[];
+  label?: string;
+  popularity?: number;
+  [key: string]: any;
+}
+export interface RawPaginatedResponse<T> {
   href: string;
   limit: number;
   next: string | null;
@@ -51,35 +60,14 @@ export interface RawPaginated<T> {
   [key: string]: any;
 }
 
-export interface RawAlbum {
-  album_type: 'album' | 'single' | 'compilation';
-  total_tracks: number;
-  id: string;
-  images: RawImage[];
-  name: string;
-  release_date: string;
-  artists: RawArtist[];
-
-  // Gör dessa valfria?
-  tracks: {
-    total: number;
-    items: RawTrack[];
-    [key: string]: any;
-  };
-
-  // Gör dessa valfria?
-  genres: string[];
-  label: string;
-  popularity: number;
-  [key: string]: any;
-}
-
+export type RawAlbumsResponse = RawPaginatedResponse<RawAlbum>;
 export interface RawNewReleases {
-  albums: RawPaginated<RawAlbum>;
+  albums: RawAlbumsResponse;
 }
 
-// new
-export type RawAlbumsResponse = RawPaginated<RawAlbum>;
+// export interface RawNewReleases {
+//   albums: RawPaginatedResponse<RawAlbum>;
+// }
 
 // export interface RawNewReleases {
 //   albums: {
