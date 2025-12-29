@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middlewares/spotifyAuthMiddleware.js';
 import * as SpotifyService from '../services/spotifyService.js';
+import { AuthenticatedRequest } from '../types/express.types.js';
 import { SpotifyPaginationQuery } from '../types/spotify.types.js';
 
 // Refactor note: Consider creating a generic error handler to reduce repetition - handleControllerError

@@ -1,5 +1,6 @@
 // middlewares/spotifyAuthMiddleware.ts
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
+import { AuthenticatedRequest } from '../types/express.types.js';
 import { getAccessToken } from '../services/spotifyAuthService.js';
 
 /**
@@ -7,12 +8,6 @@ import { getAccessToken } from '../services/spotifyAuthService.js';
  * getAccessToken from authService.ts and attaches the token to req.spotifyToken.
  * Runs on every Spotify API-proxy-call.
  */
-
-// Should I switch to declaration merging to add custom properties to Express Request object?
-// See src/types/express.d.ts for that approach
-export interface AuthenticatedRequest extends Request {
-  spotifyToken?: string;
-}
 
 export const attachAccessToken = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
