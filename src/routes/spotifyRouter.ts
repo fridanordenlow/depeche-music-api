@@ -10,12 +10,15 @@ import {
 
 export const spotifyRouter: Router = Router();
 
-spotifyRouter.get('/artists/:id', attachAccessToken, fetchArtist);
-spotifyRouter.get('/artists/:id/albums', attachAccessToken, fetchArtistAlbums);
-spotifyRouter.get('/albums/:id', attachAccessToken, fetchAlbum);
-spotifyRouter.get('/tracks/:id', attachAccessToken, fetchTrack);
-spotifyRouter.get('/new-releases', attachAccessToken, fetchNewReleases);
-// TODO - Add route for search
+// Global middleware for all Spotify routes to attach access token
+spotifyRouter.use(attachAccessToken);
+
+spotifyRouter.get('/artists/:id', fetchArtist);
+spotifyRouter.get('/artists/:id/albums', fetchArtistAlbums);
+spotifyRouter.get('/albums/:id', fetchAlbum);
+spotifyRouter.get('/tracks/:id', fetchTrack);
+spotifyRouter.get('/new-releases', fetchNewReleases);
+// MONDAY TODO 2 - Add route for search
 
 // Hämta artistdetaljer - GET /api/spotify/artists/{id}
 // Hämta albumdetaljer - GET /api/spotify/albums/{id}
