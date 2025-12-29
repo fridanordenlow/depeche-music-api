@@ -23,6 +23,7 @@ export interface RawTrack {
   duration_ms: number;
   id: string;
   name: string;
+  popularity: number;
   preview_url: string | null; // To be able to play 30 sec previews
   track_number: number;
   [key: string]: any;
@@ -60,9 +61,16 @@ export interface RawPaginatedResponse<T> {
   [key: string]: any;
 }
 
+// Is this one needed? On the controller/service side we use RawPaginatedResponse<RawAlbum>
 export type RawAlbumsResponse = RawPaginatedResponse<RawAlbum>;
 export interface RawNewReleases {
   albums: RawAlbumsResponse;
+}
+
+export interface RawSearchResponse {
+  artists?: RawPaginatedResponse<RawArtist>;
+  albums?: RawPaginatedResponse<RawAlbum>;
+  tracks?: RawPaginatedResponse<RawTrack>;
 }
 
 // export interface RawNewReleases {

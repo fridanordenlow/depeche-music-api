@@ -1,7 +1,15 @@
 // types/spotify.types.ts
 import { ParsedQs } from 'qs';
 
-// export interface NewReleasesQuery extends ParsedQs {
+export interface PaginatedResponse<T> {
+  items: T[];
+  pagination: {
+    limit: number;
+    offset: number;
+    total: number;
+  };
+}
+
 export interface SpotifyPaginationQuery extends ParsedQs {
   limit?: string;
   offset?: string;
@@ -35,6 +43,7 @@ export interface Track {
   durationMs: number;
   previewUrl: string | null; // To be able to play 30 sec previews
   trackNumber: number;
+  popularity?: number;
 }
 
 export interface AlbumReference {
@@ -54,20 +63,19 @@ export interface Album {
   releaseDate: string;
   totalTracks: number;
   // Optional properties that may not be present in all responses
-  tracks?: Track[];
-  genres?: string[];
+  tracks?: PaginatedResponse<Track>;
+  //   tracks?: Track[];
+  genres?: string[]; // Deprecated - TODO remove
   label?: string;
   popularity?: number;
 }
 
-export interface PaginatedResponse<T> {
-  items: T[];
-  pagination: {
-    limit: number;
-    offset: number;
-    total: number;
-  };
+export interface SearchResponse {
+  artists: PaginatedResponse<Artist>;
+  albums: PaginatedResponse<Album>;
+  tracks: PaginatedResponse<Track>;
 }
 
-export type ArtistAlbumsResponse = PaginatedResponse<Album>;
-export type NewReleasesResponse = PaginatedResponse<Album>;
+export type AlbumListResponse = PaginatedResponse<Album>;
+// export type ArtistAlbumsResponse = PaginatedResponse<Album>;
+// export type NewReleasesResponse = PaginatedResponse<Album>;

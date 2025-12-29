@@ -29,9 +29,8 @@ export const mapArtist = (raw: RawArtist): Artist => {
     genres: raw.genres || [],
     images: mapImages(raw.images),
   };
-  if (raw.popularity !== undefined) {
-    artist.popularity = raw.popularity;
-  }
+  if (raw.popularity !== undefined) artist.popularity = raw.popularity;
+
   return artist;
 };
 
@@ -54,7 +53,7 @@ export const mapAlbum = (raw: RawAlbum): Album => {
     totalTracks: raw.total_tracks || 0,
   };
   // Add optional fields if they exist in the raw data
-  if (raw.tracks && raw.tracks.items) album.tracks = raw.tracks.items.map(mapTrack);
+  if (raw.tracks) album.tracks = mapPaginatedResponse(raw.tracks, mapTrack);
   if (raw.genres) album.genres = raw.genres;
   if (raw.label) album.label = raw.label;
   if (raw.popularity !== undefined) album.popularity = raw.popularity;
@@ -72,18 +71,24 @@ export const mapAlbumsReference = (raw: RawAlbum): AlbumReference => {
   };
 };
 
-// This function takes the raw paginated response and maps it to my clean paginated response structure
-export const mapPaginatedAlbums = (rawResponse: RawPaginatedResponse<RawAlbum>): PaginatedResponse<Album> => {
-  const items = rawResponse.items || [];
-  const cleanItems = items.map(mapAlbum);
-
-  // This is how the "clean" Album now looks like
+// Raw & Clean are placeholders for generic types
+// itemMapper is a function that maps a single Raw item to a Clean item
+export const mapPaginatedResponse = <Raw, Clean>(
+  // We say "I want an object that at least has items: Raw[]", but it can also have total, limit, offset
+  paginatedData: {
+    items: Raw[];
+    total?: number;
+    limit?: number;
+    offset?: number;
+  },
+  itemMapper: (item: Raw) => Clean
+): PaginatedResponse<Clean> => {
   return {
-    items: cleanItems,
+    items: (paginatedData.items || []).map(itemMapper),
     pagination: {
-      limit: rawResponse.limit ?? 0, // Using nullish coalescing (??) to handle undefined
-      offset: rawResponse.offset ?? 0,
-      total: rawResponse.total ?? 0,
+      total: paginatedData.total ?? 0,
+      limit: paginatedData.limit ?? 0,
+      offset: paginatedData.offset ?? 0,
     },
   };
 };
@@ -99,9 +104,8 @@ export const mapTrack = (raw: RawTrack): Track => {
   };
   // Only add 'album' if raw.album actually exists in the raw data
   // It depends if it's used in album tracks or standalone track fetches
-  if (raw.album) {
-    track.album = mapAlbumsReference(raw.album);
-  }
+  if (raw.album) track.album = mapAlbumsReference(raw.album);
+  if (raw.popularity !== undefined) track.popularity = raw.popularity;
 
   return track;
 };
