@@ -9,6 +9,7 @@ export interface RawImage {
 export interface RawArtist {
   followers: { href: string | null; total: number };
   genres: string[]; // Can be empty array
+  href: string; // A link to the Web API endpoint providing full details of the artist
   id: string;
   images: RawImage[];
   name: string;
@@ -35,7 +36,9 @@ export interface RawAlbum {
   images: RawImage[];
   name: string;
   release_date: string;
+  uri: string;
   artists: RawArtist[];
+  album_group?: 'album' | 'single' | 'appears_on' | 'compilation';
 
   // Because in some Spotify endpoints, the tracks are not included in the response/album object
   tracks?: {
@@ -44,7 +47,6 @@ export interface RawAlbum {
     [key: string]: any;
   };
 
-  // Because in some endpoints, these properties might be missing values
   genres?: string[];
   label?: string;
   popularity?: number;
@@ -72,17 +74,3 @@ export interface RawSearchResponse {
   albums?: RawPaginatedResponse<RawAlbum>;
   tracks?: RawPaginatedResponse<RawTrack>;
 }
-
-// export interface RawNewReleases {
-//   albums: RawPaginatedResponse<RawAlbum>;
-// }
-
-// export interface RawNewReleases {
-//   albums: {
-//     limit: number;
-//     offset: number;
-//     total: number;
-//     items: RawAlbum[];
-//     [key: string]: any;
-//   };
-// }

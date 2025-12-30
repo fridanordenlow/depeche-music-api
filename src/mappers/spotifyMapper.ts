@@ -45,14 +45,16 @@ export const mapAlbum = (raw: RawAlbum): Album => {
   // Base album with mandatory fields
   const album: Album = {
     id: raw.id,
-    title: raw.name || '',
+    uri: raw.uri,
+    title: raw.name,
     artists: (raw.artists || []).map(mapArtistReference),
-    type: raw.album_type || 'unknown',
+    type: raw.album_type,
     images: mapImages(raw.images),
     releaseDate: raw.release_date || '',
-    totalTracks: raw.total_tracks || 0,
+    totalTracks: raw.total_tracks,
   };
   // Add optional fields if they exist in the raw data
+  if (raw.album_group) album.group = raw.album_group;
   if (raw.tracks) album.tracks = mapPaginatedResponse(raw.tracks, mapTrack);
   if (raw.genres) album.genres = raw.genres;
   if (raw.label) album.label = raw.label;

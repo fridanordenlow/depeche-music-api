@@ -15,6 +15,11 @@ export interface SpotifyPaginationQuery extends ParsedQs {
   offset?: string;
 }
 
+export interface ArtistAlbumsQuery extends SpotifyPaginationQuery {
+  include_groups?: string;
+  market?: string;
+}
+
 export interface SpotifyImage {
   url: string;
   height: number;
@@ -51,18 +56,19 @@ export interface AlbumReference {
   title: string;
   artists: ArtistReference[];
   imageUrl: string;
-  type: 'album' | 'single' | 'compilation' | 'unknown';
+  type: 'album' | 'single' | 'compilation';
 }
 
 export interface Album {
   id: string;
+  uri: string;
   title: string;
   artists: ArtistReference[];
-  type: 'album' | 'single' | 'compilation' | 'unknown';
+  type: 'album' | 'single' | 'compilation';
+  group?: 'album' | 'single' | 'compilation' | 'appears_on';
   images: SpotifyImage[];
   releaseDate: string;
   totalTracks: number;
-  // Optional properties that may not be present in all responses
   tracks?: PaginatedResponse<Track>;
   //   tracks?: Track[];
   genres?: string[]; // Deprecated - TODO remove
