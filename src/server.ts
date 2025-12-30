@@ -4,6 +4,9 @@ import express from 'express';
 // with 'NodeNext' resolution. TypeScript requires the extension that will exist
 // in the compiled output (dist folder), even though the source file is .ts.
 import { spotifyRouter } from './routes/spotifyRouter.js';
+import { connectDB } from './config/db.js';
+
+connectDB();
 
 const app = express();
 
@@ -20,8 +23,6 @@ app.use(express.json());
 app.use('/api/spotify', spotifyRouter);
 // Maybe later refactor to have different routers for different services
 // Ex api/users, api/spotify/album etc
-
-// Add connection to MongoDB here later
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
