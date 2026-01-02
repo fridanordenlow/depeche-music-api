@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { attachAccessToken } from '../middlewares/spotifyAuthMiddleware.js';
+import { attachAccessToken } from '../middlewares/spotifyAuth.js';
 import {
   fetchAlbum,
   fetchArtist,

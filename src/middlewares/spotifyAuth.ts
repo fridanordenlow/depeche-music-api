@@ -1,4 +1,4 @@
-// middlewares/spotifyAuthMiddleware.ts
+// middlewares/spotifyAuth.ts
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../types/express.types.js';
 import { getAccessToken } from '../services/spotifyAuthService.js';
