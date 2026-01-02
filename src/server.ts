@@ -6,6 +6,7 @@ import express from 'express';
 import { spotifyRouter } from './routes/spotifyRouter.js';
 import { connectDB } from './config/db.js';
 import { userRouter } from './routes/userRouter.js';
+import { libraryRouter } from './routes/libraryRouter.js';
 
 connectDB();
 
@@ -22,6 +23,7 @@ app.use(express.json());
 // Routes
 app.use('/api/spotify', spotifyRouter);
 app.use('/api/users', userRouter);
+app.use('/api/library', libraryRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
