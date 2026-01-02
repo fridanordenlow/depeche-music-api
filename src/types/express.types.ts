@@ -2,5 +2,5 @@ import { Request } from 'express';
 
 export interface AuthenticatedRequest extends Request {
   spotifyToken?: string;
-  // add user here later
+  userId?: string; // Saved id from JWT token
 }
