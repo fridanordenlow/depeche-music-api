@@ -8,7 +8,7 @@ export interface IUser extends Document {
   passwordHash: string;
   createdAt: Date;
   // Method to compare password hashes at login
-  comparePassword: (password: string) => Promise<boolean>;
+  comparePassword(password: string): Promise<boolean>;
 }
 
 const userSchema = new Schema({
@@ -17,6 +17,10 @@ const userSchema = new Schema({
   passwordHash: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
 });
+
+userSchema.methods.comparePassword = async function (password: string): Promise<boolean> {
+  return bcrypt.compare(password, this.passwordHash);
+};
 
 // Pre-save hook to hash password if it has been created or modified
 // Runs automatically every time a User document is saved
