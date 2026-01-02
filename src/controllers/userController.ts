@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import { AuthenticatedRequest } from '../types/express.types.js';
 
 export const registerUser = async (req: Request, res: Response) => {
   try {
@@ -33,6 +34,19 @@ export const loginUser = async (req: Request, res: Response) => {
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET as string, { expiresIn: '12h' });
     res.json({ message: 'Login successful', token, user: { id: user._id, username: user.username } });
+  } catch (error: any) {
+    res.status(500).json({ error: 'Internal Server Error', details: error.message });
+  }
+};
+
+// New function to get current user info
+export const getMe = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const user = await User.findById(req.userId).select('-passwordHash'); // Fetch everything expect the password
+
+    if (!user) return res.status(404).json({ error: 'Could not find the user' });
+
+    return res.json(user);
   } catch (error: any) {
     res.status(500).json({ error: 'Internal Server Error', details: error.message });
   }
