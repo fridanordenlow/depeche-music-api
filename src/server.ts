@@ -5,6 +5,7 @@ import express from 'express';
 // in the compiled output (dist folder), even though the source file is .ts.
 import { spotifyRouter } from './routes/spotifyRouter.js';
 import { connectDB } from './config/db.js';
+import { userRouter } from './routes/userRouter.js';
 
 connectDB();
 
@@ -21,6 +22,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/spotify', spotifyRouter);
+app.use('/api/users', userRouter);
 // Maybe later refactor to have different routers for different services
 // Ex api/users, api/spotify/album etc
 
