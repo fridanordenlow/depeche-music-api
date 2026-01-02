@@ -11,8 +11,7 @@ connectDB();
 
 const app = express();
 
-const PORT = 3000;
-//const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 
 // Middlewares
 // Add cors middleware later if needed
@@ -23,8 +22,6 @@ app.use(express.json());
 // Routes
 app.use('/api/spotify', spotifyRouter);
 app.use('/api/users', userRouter);
-// Maybe later refactor to have different routers for different services
-// Ex api/users, api/spotify/album etc
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
