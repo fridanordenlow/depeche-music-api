@@ -1,9 +1,10 @@
 import mongoose, { Schema } from 'mongoose';
+import { MusicCacheData } from '../types/music.types.js';
 
 export interface IMusicCache extends Document {
   spotifyId: string;
   type: 'album' | 'artist' | 'track';
-  data: any; // Here I save my "cleaned" Spotify data
+  data: MusicCacheData; // Here I save my "cleaned" Spotify data
   cachedAt: Date;
 }
 
