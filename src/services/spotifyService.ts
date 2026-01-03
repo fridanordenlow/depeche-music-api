@@ -1,22 +1,25 @@
 // services/spotifyService.ts
-
 import { mapAlbum, mapArtist, mapPaginatedResponse, mapTrack } from '../mappers/spotifyMapper.js';
-import {
-  RawAlbum,
-  RawAlbumsResponse,
-  RawArtist,
-  RawNewReleases,
-  RawSearchResponse,
-  RawTrack,
-} from '../types/spotify.raw.js';
+import { RawAlbumsResponse, RawNewReleases, RawSearchResponse } from '../types/spotify.raw.js';
 import { AlbumListResponse, SearchResponse } from '../types/spotify.types.js';
 import { fetchSpotifyData } from '../utils/spotifyApiUtils.js';
+import { getMusicData } from './musicCacheService.js';
 
 export const getArtist = async (token: string, id: string) => {
-  const endpointPath = `/artists/${id}`;
-  const rawResponse = await fetchSpotifyData<RawArtist>(token, endpointPath);
+  // getMusicData does the check for cached data internally
+  const musicData = await getMusicData(id, 'artist', token);
+  // Return the full artist data
+  return musicData.fullData;
+};
 
-  return mapArtist(rawResponse);
+export const getAlbum = async (token: string, id: string) => {
+  const musicData = await getMusicData(id, 'album', token);
+  return musicData.fullData;
+};
+
+export const getTrack = async (token: string, id: string) => {
+  const musicData = await getMusicData(id, 'track', token);
+  return musicData.fullData;
 };
 
 export const getArtistAlbums = async (
@@ -34,20 +37,6 @@ export const getArtistAlbums = async (
   const rawResponse = await fetchSpotifyData<RawAlbumsResponse>(token, endpointPath);
 
   return mapPaginatedResponse(rawResponse, mapAlbum);
-};
-
-export const getAlbum = async (token: string, id: string) => {
-  const endpointPath = `/albums/${id}`;
-  const rawResponse = await fetchSpotifyData<RawAlbum>(token, endpointPath);
-
-  return mapAlbum(rawResponse);
-};
-
-export const getTrack = async (token: string, id: string) => {
-  const endpointPath = `/tracks/${id}`;
-  const rawResponse = await fetchSpotifyData<RawTrack>(token, endpointPath);
-
-  return mapTrack(rawResponse);
 };
 
 export const getNewReleases = async (token: string, limit?: number, offset?: number): Promise<AlbumListResponse> => {
