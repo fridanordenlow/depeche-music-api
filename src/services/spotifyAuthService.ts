@@ -1,11 +1,8 @@
 // services/spotifyAuthService.ts
 import 'dotenv/config';
 
-// const CLIENT_ID = process.env['SPOTIFY_CLIENT_ID'] as string;
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID as string;
-// const CLIENT_SECRET = process.env['SPOTIFY_CLIENT_SECRET'] as string;
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET as string;
-// const AUTH_URL = process.env['SPOTIFY_AUTH_URL'] as string;
 const AUTH_URL = process.env.SPOTIFY_AUTH_URL as string;
 
 /**
