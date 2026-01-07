@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
+import cors from 'cors';
 // Note: The .js extension is required here because I am using ESM (ECMAScript Modules)
 // with 'NodeNext' resolution. TypeScript requires the extension that will exist
 // in the compiled output (dist folder), even though the source file is .ts.
@@ -12,12 +13,10 @@ connectDB();
 
 const app = express();
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 
 // Middlewares
-// Add cors middleware later if needed
-// Add cookie-parser middleware later if needed
-// If I plan to recieve JSON payloads in requests later (POST, PUT etc)
+app.use(cors());
 app.use(express.json());
 
 // Routes
