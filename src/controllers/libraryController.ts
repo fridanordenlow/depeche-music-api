@@ -1,9 +1,9 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../types/express.types.js';
-import UserLibraryItem from '../models/UserLibraryItem.js';
-import { getMusicData } from '../services/musicCacheService.js';
-import MusicCache from '../models/MusicCache.js';
 import mongoose from 'mongoose';
+import { AuthenticatedRequest } from '../types/express.types.js';
+import { getMusicData } from '../services/musicCacheService.js';
+import UserLibraryItem from '../models/UserLibraryItem.js';
+import MusicCache from '../models/MusicCache.js';
 
 // Function for library/add endpoint
 export const addToUserLibrary = async (req: AuthenticatedRequest, res: Response) => {
@@ -50,8 +50,6 @@ export const getUserLibrary = async (req: AuthenticatedRequest, res: Response) =
   if (!userId) return res.status(400).json({ error: 'User not authenticated' });
 
   try {
-    // const userObjectId = new mongoose.Types.ObjectId(userId);
-
     // Items sorted descending, latest items first
     const libraryItems = await UserLibraryItem.find({ userId }).sort({ addedAt: -1 });
 
@@ -84,4 +82,26 @@ export const getUserLibrary = async (req: AuthenticatedRequest, res: Response) =
   }
 };
 
-// TODO : Implement other library management functions (remove, update status, etc.)
+// Function for library/remove/:id endpoint
+export const removeUserLibraryItem = async (req: AuthenticatedRequest, res: Response) => {
+  const { itemId } = req.params;
+  const userId = req.userId;
+
+  if (!itemId || !userId) return res.status(400).json({ error: 'Missing item ID or user is not authenticated' });
+  if (!mongoose.Types.ObjectId.isValid(itemId)) return res.status(400).json({ error: 'Invalid item ID ' });
+
+  try {
+    const deletedItem = await UserLibraryItem.findOneAndDelete({ _id: itemId, userId: userId });
+
+    if (!deletedItem) {
+      return res.status(404).json({ error: 'Item not found in user library' });
+    }
+
+    res.status(200).json({ message: 'Item removed from user library', deletedItem });
+  } catch (error: any) {
+    console.error('Library Error:', error);
+    res.status(500).json({ error: 'Internal Server Error', details: error.message });
+  }
+};
+
+// TODO : Implement update status function
