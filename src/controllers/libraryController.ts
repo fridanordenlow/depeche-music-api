@@ -5,12 +5,18 @@ import { getMusicData } from '../services/musicCacheService.js';
 import MusicCache from '../models/MusicCache.js';
 import mongoose from 'mongoose';
 
+// Function for library/add endpoint
 export const addToUserLibrary = async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    const { spotifyItemId, itemType, status } = req.body;
-    const userId = req.userId;
-    const token = req.spotifyToken;
+  const { spotifyItemId, itemType, status } = req.body;
+  const userId = req.userId;
+  const token = req.spotifyToken;
 
+  if (!userId) return res.status(400).json({ error: 'User not authenticated' });
+  if (!spotifyItemId || !itemType) {
+    return res.status(400).json({ error: 'Missing required fields: spotifyItemId or itemType' });
+  }
+
+  try {
     const newItem = new UserLibraryItem({
       userId,
       spotifyItemId,
@@ -37,37 +43,40 @@ export const addToUserLibrary = async (req: AuthenticatedRequest, res: Response)
   }
 };
 
+// Function for library/get endpoint
 export const getUserLibrary = async (req: AuthenticatedRequest, res: Response) => {
+  const userId = req.userId;
+  // Early return if no userId
+  if (!userId) return res.status(400).json({ error: 'User not authenticated' });
+
   try {
-    const userId = req.userId;
-
-    if (!userId) return res.status(400).json({ error: 'User not authenticated' });
-
-    const userObjectId = new mongoose.Types.ObjectId(userId);
+    // const userObjectId = new mongoose.Types.ObjectId(userId);
 
     // Items sorted descending, latest items first
-    const libraryItems = await UserLibraryItem.find({ userId: userObjectId }).sort({ addedAt: -1 });
+    const libraryItems = await UserLibraryItem.find({ userId }).sort({ addedAt: -1 });
 
-    // Search for metadata in MusicCache for each item
+    if (libraryItems.length === 0) return res.status(200).json([]); // Return empty array if no items
+
+    const spotifyIds = libraryItems.map((item) => item.spotifyItemId);
+
+    // $in = query operator to search for matches in an array
+    const cachedMetadata = await MusicCache.find({ spotifyId: { $in: spotifyIds } });
+
+    // Create a map for quick lookup of cached metadata
+    const cacheMap = new Map(cachedMetadata.map((meta) => [meta.spotifyId, meta.data]));
+
     const libraryWithMetadata = await Promise.all(
       libraryItems.map(async (item) => {
-        let metadata = await MusicCache.findOne({
-          spotifyId: item.spotifyItemId,
-          type: item.itemType,
-        });
-
-        if (!metadata) {
-          // If not found in cache, fetch and store it
-          const data = await getMusicData(item.spotifyItemId, item.itemType, req.spotifyToken as string);
-          return { ...item.toObject(), metadata: data };
+        const metadata = cacheMap.get(item.spotifyItemId);
+        if (metadata) {
+          return { ...item.toObject(), metadata: metadata };
+        } else {
+          const freshData = await getMusicData(item.spotifyItemId, item.itemType, req.spotifyToken as string);
+          return { ...item.toObject(), metadata: freshData };
         }
-
-        return {
-          ...item.toObject(),
-          metadata: metadata.data,
-        };
       })
     );
+
     res.status(200).json(libraryWithMetadata);
   } catch (error: any) {
     console.error('Library Error:', error);
