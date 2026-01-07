@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Document, Schema } from 'mongoose';
 import { MusicCacheData } from '../types/music.types.js';
 
 export interface IMusicCache extends Document {
