@@ -82,7 +82,30 @@ export const getUserLibrary = async (req: AuthenticatedRequest, res: Response) =
   }
 };
 
-// Function for library/remove/:id endpoint
+export const updateUserLibraryItemStatus = async (req: AuthenticatedRequest, res: Response) => {
+  const { itemId } = req.params;
+  const { status } = req.body;
+  const userId = req.userId;
+
+  if (!itemId || !status || !userId) return res.status(400).json({ error: 'Missing required fields' });
+  if (!mongoose.Types.ObjectId.isValid(itemId)) return res.status(400).json({ error: 'Invalid item ID ' });
+
+  try {
+    const updatedItem = await UserLibraryItem.findOneAndUpdate(
+      { _id: itemId, userId: userId },
+      { $set: { status: status } },
+      { new: true } // Returns the updated document instead of the old one
+    );
+
+    if (!updatedItem) return res.status(404).json({ error: 'Item not found in user library' });
+
+    res.status(200).json({ message: 'Status updated successfully', updatedItem });
+  } catch (error: any) {
+    console.error('Update Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 export const removeUserLibraryItem = async (req: AuthenticatedRequest, res: Response) => {
   const { itemId } = req.params;
   const userId = req.userId;
@@ -103,5 +126,3 @@ export const removeUserLibraryItem = async (req: AuthenticatedRequest, res: Resp
     res.status(500).json({ error: 'Internal Server Error', details: error.message });
   }
 };
-
-// TODO : Implement update status function
