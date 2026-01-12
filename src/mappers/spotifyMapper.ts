@@ -21,7 +21,6 @@ export const mapImages = (raw: RawImage[]): SpotifyImage[] => {
   }));
 };
 
-// Maybe add followers later?
 export const mapArtist = (raw: RawArtist): Artist => {
   const artist: Artist = {
     id: raw.id,
@@ -29,6 +28,7 @@ export const mapArtist = (raw: RawArtist): Artist => {
     genres: raw.genres || [],
     images: mapImages(raw.images),
   };
+  if (raw.followers !== undefined) artist.followers = raw.followers.total;
   if (raw.popularity !== undefined) artist.popularity = raw.popularity;
 
   return artist;

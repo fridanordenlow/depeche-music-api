@@ -37,6 +37,7 @@ export interface Artist {
   name: string;
   genres: string[]; // Can be empty array
   images: SpotifyImage[];
+  followers?: number;
   popularity?: number;
 }
 
