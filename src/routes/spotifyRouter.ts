@@ -24,13 +24,4 @@ spotifyRouter.get('/albums/:id', fetchAlbum);
 spotifyRouter.get('/tracks/:id', fetchTrack);
 spotifyRouter.get('/new-releases', fetchNewReleases);
 
-// Hämta artistdetaljer - GET /api/spotify/artists/{id}
-// Hämta albumdetaljer - GET /api/spotify/albums/{id}
-// Hämta låtdetaljer - GET /api/spotify/tracks/{id}
-
-// Hämta albums låtar - GET /api/spotify/albums/{id}/tracks
-// Hämta artists album - GET /api/spotify/artists/{id}/albums
-
-// Generell sökning - GET /api/spotify/search
-// Landningssida/Nytt - GET /api/spotify/browse/new-releases
 // Populära låtar - GET /api/spotify/artists/{id}/top-tracks
