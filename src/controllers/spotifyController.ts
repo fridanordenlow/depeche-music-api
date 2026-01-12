@@ -64,7 +64,7 @@ export const fetchArtistAlbums = async (req: AuthenticatedRequest, res: Response
 
   try {
     const response = await SpotifyService.getArtistAlbums(token, id);
-    return res.json(response);
+    return res.json(response.items);
   } catch (error: any) {
     const statusCode = error.status || 500;
     return res.status(statusCode).json({
