@@ -5,11 +5,9 @@ import { getMusicData } from '../services/musicCacheService.js';
 import UserLibraryItem from '../models/UserLibraryItem.js';
 import MusicCache from '../models/MusicCache.js';
 
-// Function for library/add endpoint
 export const addToUserLibrary = async (req: AuthenticatedRequest, res: Response) => {
   const { spotifyItemId, itemType, status } = req.body;
   const userId = req.userId;
-  const token = req.spotifyToken;
 
   if (!userId) return res.status(400).json({ error: 'User not authenticated' });
   if (!spotifyItemId || !itemType) {
@@ -23,17 +21,14 @@ export const addToUserLibrary = async (req: AuthenticatedRequest, res: Response)
       itemType,
       status,
     });
-
     await newItem.save();
 
-    // Fetch metadata through the music cache service if needed
-    // It will either fetch from DB or Spotify API
-    const metadata = await getMusicData(spotifyItemId, itemType, token as string);
+    const cached = await MusicCache.findOne({ spotifyId: spotifyItemId });
 
     res.status(201).json({
       message: 'New item added to user library',
-      newItem, // The user library item
-      metadata, // The MusicCacheData for the item
+      item: newItem,
+      itemName: cached?.data.type === 'artist' ? cached.data.name : cached?.data.title,
     });
   } catch (error: any) {
     if (error.code === 11000) {
@@ -43,7 +38,6 @@ export const addToUserLibrary = async (req: AuthenticatedRequest, res: Response)
   }
 };
 
-// Function for library/get endpoint
 export const getUserLibrary = async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.userId;
   // Early return if no userId
@@ -65,13 +59,18 @@ export const getUserLibrary = async (req: AuthenticatedRequest, res: Response) =
 
     const libraryWithMetadata = await Promise.all(
       libraryItems.map(async (item) => {
-        const metadata = cacheMap.get(item.spotifyItemId);
-        if (metadata) {
-          return { ...item.toObject(), metadata: metadata };
-        } else {
-          const freshData = await getMusicData(item.spotifyItemId, item.itemType, req.spotifyToken as string);
-          return { ...item.toObject(), metadata: freshData };
+        let metadata = cacheMap.get(item.spotifyItemId);
+
+        if (!metadata) {
+          metadata = await getMusicData(item.spotifyItemId, item.itemType, req.spotifyToken as string);
         }
+
+        const { fullData, ...cleanMetadata } = metadata as any; // Exclude fullData to reduce payload
+
+        return {
+          ...item.toObject(),
+          metadata: cleanMetadata, // Only include necessary metadata (title/name, artists, imageUrl, etc.)
+        };
       })
     );
 
