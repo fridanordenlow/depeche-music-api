@@ -65,7 +65,7 @@ export const getUserLibrary = async (req: AuthenticatedRequest, res: Response) =
           metadata = await getMusicData(item.spotifyItemId, item.itemType, req.spotifyToken as string);
         }
 
-        const { fullData, ...cleanMetadata } = metadata as any; // Exclude fullData to reduce payload
+        const { fullData, externalUrl, ...cleanMetadata } = metadata as any; // Exclude fullData and externalUrl to reduce payload size
 
         return {
           ...item.toObject(),
