@@ -31,7 +31,7 @@ const UserRecommendationSchema: Schema = new Schema({
     type: String,
     required: true,
     trim: true,
-    maxLength: 1000, // Limit review length
+    maxLength: 1500,
   },
   isFeatured: {
     type: Boolean,
@@ -42,5 +42,8 @@ const UserRecommendationSchema: Schema = new Schema({
     default: Date.now,
   },
 });
+
+// A user can only recommend the same spotifyId once
+UserRecommendationSchema.index({ userId: 1, spotifyId: 1 }, { unique: true });
 
 export default mongoose.model<IUserRecommendation>('UserRecommendation', UserRecommendationSchema);
