@@ -3,6 +3,7 @@ import {
   createRecommendation,
   getUserRecommendations,
   getPublicRecommendations,
+  removeRecommendation,
 } from '../controllers/recommendationController.js';
 import { userAuth } from '../middlewares/userAuth.js';
 import { attachAccessToken } from '../middlewares/spotifyAuth.js';
@@ -17,3 +18,6 @@ recommendationRouter.get('/user', userAuth, attachAccessToken, getUserRecommenda
 
 // Get all recommendations (public)
 recommendationRouter.get('/all', attachAccessToken, getPublicRecommendations);
+
+// Delete a recommendation (requires auth)
+recommendationRouter.delete('/remove/:recommendationId', userAuth, removeRecommendation);

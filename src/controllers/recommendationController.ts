@@ -3,6 +3,7 @@ import { AuthenticatedRequest } from '../types/express.types.js';
 import { getMusicData } from '../services/musicCacheService.js';
 import MusicCache from '../models/MusicCache.js';
 import UserRecommendation from '../models/UserRecommendation.js';
+import mongoose from 'mongoose';
 
 export const createRecommendation = async (req: AuthenticatedRequest, res: Response) => {
   const { spotifyId, type, review, isFeatured } = req.body;
@@ -112,6 +113,29 @@ export const getPublicRecommendations = async (req: AuthenticatedRequest, res: R
     res.status(200).json(recommendationsWithMetadata);
   } catch (error: any) {
     console.error('Could not fetch public recommendations:', error);
+    res.status(500).json({ error: 'Internal Server Error', details: error.message });
+  }
+};
+
+export const removeRecommendation = async (req: AuthenticatedRequest, res: Response) => {
+  const { recommendationId } = req.params;
+  const userId = req.userId;
+
+  if (!recommendationId || !userId)
+    return res.status(400).json({ error: 'Missing recommendation ID or user is not authenticated' });
+  if (!mongoose.Types.ObjectId.isValid(recommendationId))
+    return res.status(400).json({ error: 'Invalid recommendation ID ' });
+
+  try {
+    const deletedItem = await UserRecommendation.findOneAndDelete({ _id: recommendationId, userId: userId });
+
+    if (!deletedItem) {
+      return res.status(404).json({ error: 'Recommendation not found or not owned by user' });
+    }
+
+    res.status(200).json({ message: 'Recommendation deleted successfully', deletedItem });
+  } catch (error: any) {
+    console.error('Recommendation deletion error:', error);
     res.status(500).json({ error: 'Internal Server Error', details: error.message });
   }
 };
