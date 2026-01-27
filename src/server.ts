@@ -8,6 +8,7 @@ import { spotifyRouter } from './routes/spotifyRouter.js';
 import { connectDB } from './config/db.js';
 import { userRouter } from './routes/userRouter.js';
 import { libraryRouter } from './routes/libraryRouter.js';
+import { recommendationRouter } from './routes/recommendationRouter.js';
 
 connectDB();
 
@@ -23,6 +24,7 @@ app.use(express.json());
 app.use('/api/spotify', spotifyRouter);
 app.use('/api/users', userRouter);
 app.use('/api/library', libraryRouter);
+app.use('/api/recommendations', recommendationRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
