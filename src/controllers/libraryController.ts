@@ -27,8 +27,9 @@ export const addToUserLibrary = async (req: AuthenticatedRequest, res: Response)
 
     res.status(201).json({
       message: 'New item added to user library',
-      item: newItem,
+      libraryId: newItem._id,
       itemName: metadata.type === 'artist' ? metadata.name : metadata.title,
+      item: newItem,
     });
   } catch (error: any) {
     if (error.code === 11000) {
