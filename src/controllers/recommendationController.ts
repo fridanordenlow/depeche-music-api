@@ -117,6 +117,34 @@ export const getPublicRecommendations = async (req: AuthenticatedRequest, res: R
   }
 };
 
+export const getRecommendationById = async (req: AuthenticatedRequest, res: Response) => {
+  const { recommendationId } = req.params;
+
+  if (!recommendationId) return res.status(400).json({ error: 'Missing recommendation ID in request parameters' });
+  if (!mongoose.Types.ObjectId.isValid(recommendationId))
+    return res.status(400).json({ error: 'Invalid recommendation ID' });
+
+  try {
+    const recommendation = await UserRecommendation.findById(recommendationId).populate('userId', 'username spotifyId');
+
+    if (!recommendation) {
+      return res.status(404).json({ error: 'Recommendation not found' });
+    }
+
+    let metadata = await getMusicData(recommendation.spotifyId, recommendation.type, req.spotifyToken as string);
+
+    const { fullData, externalUrl, ...cleanMetadata } = metadata as any;
+
+    res.status(200).json({
+      ...recommendation.toObject(),
+      metadata: cleanMetadata,
+    });
+  } catch (error: any) {
+    console.error('Could not fetch recommendation by ID:', error);
+    res.status(500).json({ error: 'Internal Server Error', details: error.message });
+  }
+};
+
 export const removeRecommendation = async (req: AuthenticatedRequest, res: Response) => {
   const { recommendationId } = req.params;
   const userId = req.userId;
