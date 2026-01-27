@@ -23,12 +23,12 @@ export const addToUserLibrary = async (req: AuthenticatedRequest, res: Response)
     });
     await newItem.save();
 
-    const cached = await MusicCache.findOne({ spotifyId: spotifyItemId });
+    const metadata = await getMusicData(spotifyItemId, itemType, req.spotifyToken as string);
 
     res.status(201).json({
       message: 'New item added to user library',
       item: newItem,
-      itemName: cached?.data.type === 'artist' ? cached.data.name : cached?.data.title,
+      itemName: metadata.type === 'artist' ? metadata.name : metadata.title,
     });
   } catch (error: any) {
     if (error.code === 11000) {
@@ -40,7 +40,6 @@ export const addToUserLibrary = async (req: AuthenticatedRequest, res: Response)
 
 export const getUserLibrary = async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.userId;
-  // Early return if no userId
   if (!userId) return res.status(400).json({ error: 'User not authenticated' });
 
   try {
