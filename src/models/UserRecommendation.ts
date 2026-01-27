@@ -31,6 +31,7 @@ const UserRecommendationSchema: Schema = new Schema({
     type: String,
     required: true,
     trim: true,
+    minLength: 10,
     maxLength: 1500,
   },
   isFeatured: {
