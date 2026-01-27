@@ -28,10 +28,14 @@ export const createRecommendation = async (req: AuthenticatedRequest, res: Respo
 
     res.status(201).json({
       message: 'Recommendation created successfully',
-      recommendation: newRecommendation,
+      recommendationId: newRecommendation._id,
       itemName: metadata.type === 'artist' ? metadata.name : metadata.title,
+      recommendation: newRecommendation,
     });
   } catch (error: any) {
+    if (error.code === 11000) {
+      return res.status(400).json({ error: 'You have already created a recommendation for this item' });
+    }
     console.error('Could not create recommendation:', error);
     res.status(500).json({ error: 'Internal Server Error', details: error.message });
   }
@@ -45,6 +49,7 @@ export const getUserRecommendations = async (req: AuthenticatedRequest, res: Res
   try {
     const recommendations = await UserRecommendation.find({ userId }).sort({ createdAt: -1 });
 
+    // Is it okay to return empty array here?
     if (recommendations.length === 0) return res.status(200).json([]);
 
     const spotifyIds = recommendations.map((rec) => rec.spotifyId);
@@ -118,14 +123,13 @@ export const getPublicRecommendations = async (req: AuthenticatedRequest, res: R
 };
 
 export const getRecommendationById = async (req: AuthenticatedRequest, res: Response) => {
-  const { recommendationId } = req.params;
+  const { itemId } = req.params;
 
-  if (!recommendationId) return res.status(400).json({ error: 'Missing recommendation ID in request parameters' });
-  if (!mongoose.Types.ObjectId.isValid(recommendationId))
-    return res.status(400).json({ error: 'Invalid recommendation ID' });
+  if (!itemId) return res.status(400).json({ error: 'Missing recommendation ID in request parameters' });
+  if (!mongoose.Types.ObjectId.isValid(itemId)) return res.status(400).json({ error: 'Invalid recommendation ID' });
 
   try {
-    const recommendation = await UserRecommendation.findById(recommendationId).populate('userId', 'username spotifyId');
+    const recommendation = await UserRecommendation.findById(itemId).populate('userId', 'username spotifyId');
 
     if (!recommendation) {
       return res.status(404).json({ error: 'Recommendation not found' });
@@ -145,17 +149,44 @@ export const getRecommendationById = async (req: AuthenticatedRequest, res: Resp
   }
 };
 
-export const removeRecommendation = async (req: AuthenticatedRequest, res: Response) => {
-  const { recommendationId } = req.params;
+export const updateRecommendation = async (req: AuthenticatedRequest, res: Response) => {
+  const { itemId } = req.params;
+  const { review } = req.body;
   const userId = req.userId;
 
-  if (!recommendationId || !userId)
+  if (!itemId || !userId)
     return res.status(400).json({ error: 'Missing recommendation ID or user is not authenticated' });
-  if (!mongoose.Types.ObjectId.isValid(recommendationId))
-    return res.status(400).json({ error: 'Invalid recommendation ID ' });
+  if (!review || !review.trim()) return res.status(400).json({ error: 'Review is required and cannot be empty' });
+  if (!mongoose.Types.ObjectId.isValid(itemId)) return res.status(400).json({ error: 'Invalid recommendation ID' });
 
   try {
-    const deletedItem = await UserRecommendation.findOneAndDelete({ _id: recommendationId, userId: userId });
+    const updatedRecommendation = await UserRecommendation.findOneAndUpdate(
+      { _id: itemId, userId: userId },
+      { $set: { review: review.trim() } },
+      { new: true }
+    );
+
+    if (!updatedRecommendation) {
+      return res.status(404).json({ error: 'Recommendation not found or not owned by user' });
+    }
+
+    res.status(200).json({ message: 'Recommendation updated successfully', updatedRecommendation });
+  } catch (error: any) {
+    console.error('Could not update recommendation:', error);
+    res.status(500).json({ error: 'Internal Server Error', details: error.message });
+  }
+};
+
+export const removeRecommendation = async (req: AuthenticatedRequest, res: Response) => {
+  const { itemId } = req.params;
+  const userId = req.userId;
+
+  if (!itemId || !userId)
+    return res.status(400).json({ error: 'Missing recommendation ID or user is not authenticated' });
+  if (!mongoose.Types.ObjectId.isValid(itemId)) return res.status(400).json({ error: 'Invalid recommendation ID ' });
+
+  try {
+    const deletedItem = await UserRecommendation.findOneAndDelete({ _id: itemId, userId: userId });
 
     if (!deletedItem) {
       return res.status(404).json({ error: 'Recommendation not found or not owned by user' });
