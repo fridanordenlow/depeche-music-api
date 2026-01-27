@@ -12,5 +12,5 @@ export const libraryRouter: Router = Router();
 
 libraryRouter.post('/add', userAuth, attachAccessToken, addToUserLibrary);
 libraryRouter.get('/get', userAuth, attachAccessToken, getUserLibrary);
-libraryRouter.put('/update/:itemId', userAuth, updateUserLibraryItemStatus);
+libraryRouter.patch('/update/:itemId', userAuth, updateUserLibraryItemStatus);
 libraryRouter.delete('/remove/:itemId', userAuth, removeUserLibraryItem);
