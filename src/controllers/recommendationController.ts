@@ -177,6 +177,35 @@ export const updateRecommendation = async (req: AuthenticatedRequest, res: Respo
   }
 };
 
+export const setFeaturedStatus = async (req: AuthenticatedRequest, res: Response) => {
+  const { itemId } = req.params;
+  const { isFeatured } = req.body;
+
+  if (!itemId) return res.status(400).json({ error: 'Missing recommendation ID' });
+  if (typeof isFeatured !== 'boolean') return res.status(400).json({ error: 'isFeatured must be a boolean value' });
+  if (!mongoose.Types.ObjectId.isValid(itemId)) return res.status(400).json({ error: 'Invalid recommendation ID' });
+
+  try {
+    const updatedRecommendation = await UserRecommendation.findByIdAndUpdate(
+      itemId,
+      { $set: { isFeatured } },
+      { new: true }
+    );
+
+    if (!updatedRecommendation) {
+      return res.status(404).json({ error: 'Recommendation not found' });
+    }
+
+    res.status(200).json({
+      message: `Recommendation set to ${isFeatured ? 'featured' : 'unfeatured'} successfully`,
+      updatedRecommendation,
+    });
+  } catch (error: any) {
+    console.error('Could not update featured status:', error);
+    res.status(500).json({ error: 'Internal Server Error', details: error.message });
+  }
+};
+
 export const removeRecommendation = async (req: AuthenticatedRequest, res: Response) => {
   const { itemId } = req.params;
   const userId = req.userId;

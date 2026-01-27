@@ -6,6 +6,7 @@ import {
   removeRecommendation,
   getRecommendationById,
   updateRecommendation,
+  setFeaturedStatus,
 } from '../controllers/recommendationController.js';
 import { userAuth } from '../middlewares/userAuth.js';
 import { attachAccessToken } from '../middlewares/spotifyAuth.js';
@@ -25,7 +26,10 @@ recommendationRouter.get('/all', attachAccessToken, getPublicRecommendations);
 recommendationRouter.get('/:itemId', attachAccessToken, getRecommendationById);
 
 // Update a recommendation (requires auth)
-recommendationRouter.put('/update/:itemId', userAuth, attachAccessToken, updateRecommendation);
+recommendationRouter.patch('/update/:itemId', userAuth, attachAccessToken, updateRecommendation);
+
+// Set featured status (admin only - currently no auth check)
+recommendationRouter.patch('/featured/:itemId', setFeaturedStatus);
 
 // Delete a recommendation (requires auth)
 recommendationRouter.delete('/remove/:itemId', userAuth, removeRecommendation);
