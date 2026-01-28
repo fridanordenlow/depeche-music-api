@@ -49,7 +49,6 @@ export const getUserRecommendations = async (req: AuthenticatedRequest, res: Res
   try {
     const recommendations = await UserRecommendation.find({ userId }).sort({ createdAt: -1 });
 
-    // Is it okay to return empty array here?
     if (recommendations.length === 0) return res.status(200).json([]);
 
     const spotifyIds = recommendations.map((rec) => rec.spotifyId);
@@ -107,9 +106,11 @@ export const getPublicRecommendations = async (req: AuthenticatedRequest, res: R
         }
 
         const { fullData, externalUrl, ...cleanMetadata } = metadata as any;
+        const { userId, ...rest } = item.toObject();
 
         return {
-          ...item.toObject(),
+          ...rest,
+          user: userId,
           metadata: cleanMetadata,
         };
       })
@@ -138,9 +139,11 @@ export const getRecommendationById = async (req: AuthenticatedRequest, res: Resp
     let metadata = await getMusicData(recommendation.spotifyId, recommendation.type, req.spotifyToken as string);
 
     const { fullData, externalUrl, ...cleanMetadata } = metadata as any;
+    const { userId, ...rest } = recommendation.toObject();
 
     res.status(200).json({
-      ...recommendation.toObject(),
+      ...rest,
+      user: userId,
       metadata: cleanMetadata,
     });
   } catch (error: any) {
