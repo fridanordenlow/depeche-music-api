@@ -65,9 +65,10 @@ export const fetchArtistAlbums = async (req: AuthenticatedRequest, res: Response
 
   const limit = query.limit ? parseInt(query.limit) : 20;
   const offset = query.offset ? parseInt(query.offset) : 0;
+  const includeGroups = (query.include_groups as string) || 'album,single';
 
   try {
-    const response = await SpotifyService.getArtistAlbums(token, id, limit, offset);
+    const response = await SpotifyService.getArtistAlbums(token, id, limit, offset, includeGroups);
     return res.json(response);
   } catch (error: any) {
     const statusCode = error.status || 500;

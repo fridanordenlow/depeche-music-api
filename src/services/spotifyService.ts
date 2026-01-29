@@ -26,12 +26,13 @@ export const getArtistAlbums = async (
   token: string,
   id: string,
   limit: number = 20,
-  offset: number = 0
+  offset: number = 0,
+  includeGroups: string = 'album,single'
 ): Promise<AlbumListResponse> => {
   const params = new URLSearchParams({
     limit: limit.toString(),
     offset: offset.toString(),
-    include_groups: 'album',
+    include_groups: includeGroups,
   });
   const endpointPath = `/artists/${id}/albums?${params.toString()}`;
   const rawResponse = await fetchSpotifyData<RawAlbumsResponse>(token, endpointPath);
