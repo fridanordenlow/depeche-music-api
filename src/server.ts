@@ -20,6 +20,9 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// Health-check
+app.get('/api/health', (req, res) => res.status(200).send('ok'));
+
 // Routes
 app.use('/api/spotify', spotifyRouter);
 app.use('/api/users', userRouter);
