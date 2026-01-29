@@ -53,6 +53,7 @@ export const fetchAlbum = async (req: AuthenticatedRequest, res: Response) => {
 
 export const fetchArtistAlbums = async (req: AuthenticatedRequest, res: Response) => {
   const { id } = req.params;
+  const query = req.query as SpotifyPaginationQuery;
   const token = req.spotifyToken as string;
 
   if (!id) {
@@ -62,9 +63,12 @@ export const fetchArtistAlbums = async (req: AuthenticatedRequest, res: Response
     });
   }
 
+  const limit = query.limit ? parseInt(query.limit) : 20;
+  const offset = query.offset ? parseInt(query.offset) : 0;
+
   try {
-    const response = await SpotifyService.getArtistAlbums(token, id);
-    return res.json(response.items);
+    const response = await SpotifyService.getArtistAlbums(token, id, limit, offset);
+    return res.json(response);
   } catch (error: any) {
     const statusCode = error.status || 500;
     return res.status(statusCode).json({
@@ -127,11 +131,11 @@ export const search = async (req: AuthenticatedRequest, res: Response) => {
     });
   }
 
-  const limitNumber = limit ? parseInt(limit as string) : undefined;
-  const offsetNumber = offset ? parseInt(offset as string) : undefined;
+  const parsedLimit = limit ? parseInt(limit as string) : undefined;
+  const parsedOffset = offset ? parseInt(offset as string) : undefined;
 
   try {
-    const response = await SpotifyService.getSearchResults(token, q, limitNumber, offsetNumber);
+    const response = await SpotifyService.getSearchResults(token, q, parsedLimit, parsedOffset);
     return res.json(response);
   } catch (error: any) {
     const statusCode = error.status || 500;
